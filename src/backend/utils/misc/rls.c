@@ -85,7 +85,7 @@ check_enable_rls(Oid relid, Oid checkAsUser, bool noError)
 	 * Return RLS_NONE_ENV to indicate that this decision depends on the
 	 * environment (in this case, the user_id).
 	 */
-	if (has_bypassrls_privilege(user_id))
+	if (has_bypassrls_privilege_rls(user_id))
 		return RLS_NONE_ENV;
 
 	/*

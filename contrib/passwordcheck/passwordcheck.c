@@ -81,13 +81,14 @@ check_password(const char *username,
 		int			pwdlen = strlen(password);
 		int			i;
 		bool		pwd_has_letter,
-					pwd_has_nonletter;
+					pwd_has_nonletter,
+					pwd_has_special;
 
 		/* enforce minimum length */
 		if (pwdlen < MIN_PWD_LENGTH)
 			ereport(ERROR,
 					(errcode(ERRCODE_INVALID_PARAMETER_VALUE),
-					 errmsg("password is too short")));
+					 errmsg("password is too short, at least 8 characters")));
 
 		/* check if the password contains the username */
 		if (strstr(password, username))
@@ -98,6 +99,7 @@ check_password(const char *username,
 		/* check if the password contains both letters and non-letters */
 		pwd_has_letter = false;
 		pwd_has_nonletter = false;
+		pwd_has_special = false;
 		for (i = 0; i < pwdlen; i++)
 		{
 			/*
@@ -106,13 +108,15 @@ check_password(const char *username,
 			 */
 			if (isalpha((unsigned char) password[i]))
 				pwd_has_letter = true;
-			else
+			else if (isdigit((unsigned  char) password[i]))
 				pwd_has_nonletter = true;
+			else
+				pwd_has_special = true;
 		}
-		if (!pwd_has_letter || !pwd_has_nonletter)
+		if (!pwd_has_letter || !pwd_has_nonletter || !pwd_has_special)
 			ereport(ERROR,
 					(errcode(ERRCODE_INVALID_PARAMETER_VALUE),
-					 errmsg("password must contain both letters and nonletters")));
+					 errmsg("password must contain both letters and nonletters and special characters")));
 
 #ifdef USE_CRACKLIB
 		/* call cracklib to check password */
